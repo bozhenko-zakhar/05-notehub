@@ -21,18 +21,19 @@ interface DeleteNoteParams {
 	currentId: string
 }
 
-export async function fetchNotes({currentPage, searchText}: FetchNotesParams): Promise<Note[]> {
+export async function fetchNotes({currentPage, searchText}: FetchNotesParams): Promise<FetchNotesResponse> {
 	const response = await axios.get<FetchNotesResponse>("https://notehub-public.goit.study/api/notes/", {
 		params: {
 			search: searchText,
 			page: currentPage,
+			perPage: 12
 		},
 		headers: {
 			Authorization: `Bearer ${import.meta.env.VITE_NOTEHUB_TOKEN}`
 		}
 	});
 
-	return response.data.notes;
+	return response.data;
 }
 
 export async function createNote({title, content, tag}: CreateNoteParams): Promise<Note> {

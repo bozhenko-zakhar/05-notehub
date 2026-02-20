@@ -1,10 +1,46 @@
-import styles from './Modal.module.css'
+import { createPortal } from 'react-dom'
+import css from './Modal.module.css'
+import { useEffect } from 'react';
+import NoteForm from '../NoteForm/NoteForm';
 
-export default function Modal() {
+interface ModalProps {
+	onClose: () => void;
+}
 
-  return (
-    <>
-		
-    </>
-  )
+export default function Modal({onClose}: ModalProps) {
+	function handleBackdropClick(event: React.MouseEvent<HTMLDivElement>) {
+		if (event.target === event.currentTarget) {
+      onClose();
+    }
+	}
+	
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+      	onClose();
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		document.body.style.overflow = "hidden";
+
+		return () => {
+			document.removeEventListener("keydown", handleKeyDown);
+			document.body.style.overflow = "";
+		};
+	}, [onClose])
+
+  return createPortal(
+		<div
+			className={css.backdrop}
+			role="dialog"
+			aria-modal="true"
+			onClick={handleBackdropClick}
+		>
+			<div className={css.modal}>
+				<NoteForm />
+			</div>
+		</div>,
+		document.body
+	)
 }
