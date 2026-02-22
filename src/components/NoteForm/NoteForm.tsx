@@ -2,15 +2,37 @@ import { useId } from 'react'
 import * as Yup from "yup"
 import css from './NoteForm.module.css'
 import {Formik, Form, Field, ErrorMessage, type FormikHelpers} from "formik"
-import type { NewNote } from '../../types/note'
+import type { NewNote, Note } from '../../types/note'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createNote } from '../../services/noteService'
+import toast from 'react-hot-toast'
 
-interface NoteFormParams {
-	closeModal: () => void,
-	createNote: (newNote: NewNote) => void
+interface NoteFormProps {
+	closeModal: () => void
 }
 
-export default function NoteForm({closeModal, createNote}: NoteFormParams) {
+export default function NoteForm({closeModal}: NoteFormProps) {
 	const fieldId = useId();
+	const queryClient = useQueryClient();
+
+	const createNoteMutation = useMutation({
+		mutationFn: async (newNote: NewNote) => {
+			const createdNote: Promise<Note> = createNote({
+				title: newNote.title,
+				content: newNote.content,
+				tag: newNote.tag
+			});
+			return createdNote;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['notes'] });
+		
+			toast.success("Your note was successfuly created");
+		},
+		onError: (error) => {
+			toast.error(`${error}`);
+		}
+	});
 
 	const noteInitValues: NewNote = {
 		title: "Continuing GoIt course",
@@ -32,11 +54,11 @@ export default function NoteForm({closeModal, createNote}: NoteFormParams) {
 
 
 	function handleSubmit (values: NewNote, actions: FormikHelpers<NewNote>) {
-		createNote({
+		createNoteMutation.mutate({
 			title: values.title,
 			content: values.content,
 			tag: values.tag
-		})
+		});
 
   	actions.resetForm();
 		closeModal();

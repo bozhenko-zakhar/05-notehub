@@ -8,12 +8,12 @@ interface FetchNotesResponse {
 
 interface FetchNotesParams {
 	currentPage: number;
-	searchText?: string
+	searchText: string
 }
 
 interface CreateNoteParams {
 	title: string;
-	content: string;
+	content: string | null;
 	tag: NoteTag
 }
 
@@ -24,7 +24,7 @@ interface DeleteNoteParams {
 export async function fetchNotes({currentPage, searchText}: FetchNotesParams): Promise<FetchNotesResponse> {
 	const response = await axios.get<FetchNotesResponse>("https://notehub-public.goit.study/api/notes/", {
 		params: {
-			search: searchText,
+			search: searchText || "",
 			page: currentPage,
 			perPage: 12
 		},
