@@ -28,6 +28,8 @@ export default function NoteForm({closeModal}: NoteFormProps) {
 			queryClient.invalidateQueries({ queryKey: ['notes'] });
 		
 			toast.success("Your note was successfuly created");
+
+			closeModal();
 		},
 		onError: (error) => {
 			toast.error(`${error}`);
@@ -59,9 +61,8 @@ export default function NoteForm({closeModal}: NoteFormProps) {
 			content: values.content,
 			tag: values.tag
 		});
-
-  	actions.resetForm();
-		closeModal();
+		
+		actions.resetForm();
 	}
 
   return (
