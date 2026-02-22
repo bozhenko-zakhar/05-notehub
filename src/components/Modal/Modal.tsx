@@ -2,22 +2,24 @@ import { createPortal } from 'react-dom'
 import css from './Modal.module.css'
 import { useEffect } from 'react';
 import NoteForm from '../NoteForm/NoteForm';
+import type { NewNote } from '../../types/note';
 
 interface ModalProps {
-	onClose: () => void;
+	closeModal: () => void;
+	createNote: (newNote: NewNote) => void;
 }
 
-export default function Modal({onClose}: ModalProps) {
+export default function Modal({closeModal, createNote}: ModalProps) {
 	function handleBackdropClick(event: React.MouseEvent<HTMLDivElement>) {
 		if (event.target === event.currentTarget) {
-      onClose();
+      closeModal();
     }
 	}
 	
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key === "Escape") {
-      	onClose();
+      	closeModal();
 			}
 		};
 
@@ -28,7 +30,7 @@ export default function Modal({onClose}: ModalProps) {
 			document.removeEventListener("keydown", handleKeyDown);
 			document.body.style.overflow = "";
 		};
-	}, [onClose])
+	}, [closeModal])
 
   return createPortal(
 		<div
@@ -38,7 +40,7 @@ export default function Modal({onClose}: ModalProps) {
 			onClick={handleBackdropClick}
 		>
 			<div className={css.modal}>
-				<NoteForm />
+				<NoteForm closeModal={() => closeModal()} createNote={createNote} />
 			</div>
 		</div>,
 		document.body

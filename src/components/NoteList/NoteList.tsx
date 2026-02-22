@@ -1,24 +1,23 @@
 import type { Note } from '../../types/note'
 import css from './NoteList.module.css'
-import { deleteNote } from '../../services/noteService'
 
 interface NoteListProps {
-	notes: Note[]
+	notes: Note[],
+	deleteNote: (id: string) => void
 }
 
-export default function NoteList({notes}: NoteListProps) {
+export default function NoteList({notes, deleteNote}: NoteListProps) {
 
   return (
     <ul className={css.list}>
 			{
-				notes?.map(note => (
+				notes.map(note => (
 					<li className={css.listItem} key={note.id}>
 						<h2 className={css.title}>{note.title}</h2>
 						<p className={css.content}>{note.content}</p>
 						<div className={css.footer}>
 							<span className={css.tag}>{note.tag}</span>
-							<button onClick={() => deleteNote({currentId: note.id})} className={css.button}>Delete</button> 
-							{/* Add useMutation */}
+							<button onClick={() => deleteNote(note.id)} className={css.button}>Delete</button> 
 						</div>
 					</li>
 				))

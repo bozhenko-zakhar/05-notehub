@@ -1,10 +1,22 @@
 import { useId } from 'react'
 import * as Yup from "yup"
 import css from './NoteForm.module.css'
-import {Formik, Form, Field, ErrorMessage} from "formik"
+import {Formik, Form, Field, ErrorMessage, type FormikHelpers} from "formik"
+import type { NewNote } from '../../types/note'
 
-export default function NoteForm() {
+interface NoteFormParams {
+	closeModal: () => void,
+	createNote: (newNote: NewNote) => void
+}
+
+export default function NoteForm({closeModal, createNote}: NoteFormParams) {
 	const fieldId = useId();
+
+	const noteInitValues: NewNote = {
+		title: "Continuing GoIt course",
+		content: "Now we are completing 5th course of React + Next module. So we are close for the next completing on 6th!",
+		tag: "Personal"
+	} 
 
 	const NoteFormSchema = Yup.object().shape({
 		title: Yup.string()
@@ -18,13 +30,20 @@ export default function NoteForm() {
 			.matches(/(Todo|Work|Personal|Meeting|Shopping)/)
 	})
 
-	function handleSubmit (values: interface, actions: FormikHelpers<interface>) {
 
-  	actions.resetForm()
+	function handleSubmit (values: NewNote, actions: FormikHelpers<NewNote>) {
+		createNote({
+			title: values.title,
+			content: values.content,
+			tag: values.tag
+		})
+
+  	actions.resetForm();
+		closeModal();
 	}
 
   return (
-		<Formik initialValues={{}} validationSchema={NoteFormSchema} onSubmit={handleSubmit}>
+		<Formik initialValues={noteInitValues} validationSchema={NoteFormSchema} onSubmit={handleSubmit}>
 			<Form className={css.form}>
 				<div className={css.formGroup}>
 					<label htmlFor={`${fieldId}-title`}>Title</label>
@@ -34,30 +53,36 @@ export default function NoteForm() {
 				</div>
 
 				<div className={css.formGroup}>
-					<label htmlFor="content">Content</label>
-					<textarea
-						id="content"
+					<label htmlFor={`${fieldId}-content`}>Content</label>
+					<Field
+						as="textarea"
+						className={css.textarea}
+						id={`${fieldId}-content`}
 						name="content"
 						rows={8}
-						className={css.textarea}
 					/>
-					<span name="content" className={css.error} />
+					<ErrorMessage name="content" component="span" className={css.error} />
 				</div>
 
 				<div className={css.formGroup}>
-					<label htmlFor="tag">Tag</label>
-					<select id="tag" name="tag" className={css.select}>
+					<label htmlFor={`${fieldId}-tag`}>Tag</label>
+					<Field
+						as="select"
+						className={css.select}
+						id={`${fieldId}-tag`}
+						name="tag"
+					>
 						<option value="Todo">Todo</option>
 						<option value="Work">Work</option>
 						<option value="Personal">Personal</option>
 						<option value="Meeting">Meeting</option>
 						<option value="Shopping">Shopping</option>
-					</select>
-					<span name="tag" className={css.error} />
+					</Field>
+					<ErrorMessage name="tag" component="span" className={css.error} />
 				</div>
 
 				<div className={css.actions}>
-					<button type="button" className={css.cancelButton}>
+					<button onClick={() => closeModal()} type="button" className={css.cancelButton}>
 						Cancel
 					</button>
 					<button
@@ -70,7 +95,5 @@ export default function NoteForm() {
 				</div>
 			</Form>
 		</Formik>
-
-			
   )
 }
